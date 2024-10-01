@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二年级数学小博士——时间冒险</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@700&display=swap');
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #ffffff;
+            height: 100vh;
+            margin: 0;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #ffffff;
+            text-shadow: 2px 2px #000000; /* 改为黑色阴影 */
+            font-size: 32px;
+            margin: 10px 0;
+        }
+        main {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-grow: 1;
+            margin-bottom: 40px; /* 为版权声明留出空间 */
+        }
+        .clock-container {
+            position: relative;
+        }
+        .clock {
+            width: 500px;
+            height: 500px;
+            border: 20px solid #000000; /* 改为黑色外框 */
+            border-radius: 50%;
+            position: relative;
+            background-color: #ffffff; /* 改为白色背景 */
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: 50% 100%;
+            border-radius: 10px;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .hour-hand {
+            width: 20px;
+            height: 150px;
+            margin-left: -10px;
+            background: #ff0000; /* 改为红色 */
+        }
+        .minute-hand {
+            width: 12px;
+            height: 200px;
+            margin-left: -6px;
+            background: #0000ff; /* 改为蓝色 */
+        }
+        .center-dot {
+            width: 30px;
+            height: 30px;
+            background: #000000; /* 改为黑色 */
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .number {
+            position: absolute;
+            font-size: 44px;
+            font-weight: bold;
+            color: #000000; /* 改为黑色 */
+            text-shadow: none; /* 移除文字阴影 */
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+            transition: transform 1s ease-in-out;
+        }
+        @keyframes rotateNumbers {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .answer-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            background-color: rgba(78, 205, 196, 0.2);
+            backdrop-filter: blur(5px);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            max-width: 350px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        input, button {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 20px;
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: none;
+            background-color: rgba(51, 51, 51, 0.7); /* 改为半透明深灰色 */
+            color: #ffffff; /* 确保文字为白色 */
+            width: 250px;
+            transition: all 0.3s;
+            text-align: center; /* 添加这行使输入文本居中 */
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7); /* 设置占位符文字为半透明白色 */
+        }
+        button {
+            cursor: pointer;
+            background-color: #333333; /* 改为深灰色 */
+            color: #ffffff;
+        }
+        button:hover {
+            background-color: #555555; /* 悬停时变为稍浅的灰色 */
+            transform: translateY(-2px);
+        }
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 60px;
+            color: #ffffff; /* 确保结果文字为白色 */
+            text-shadow: 1px 1px 2px #000000; /* 添加黑色阴影以提高可读性 */
+        }
+        #score-container {
+            width: 100%;
+            background-color: rgba(189, 195, 199, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        #score-bar {
+            width: 0%;
+            height: 30px;
+            background: linear-gradient(90deg, #4ecdc4, #ffe66d);
+            text-align: right;
+            line-height: 30px;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        #encouragement {
+            font-size: 18px;
+            color: #ffffff; /* 改为白色 */
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* 添加文字阴影以提高可读性 */
+        }
+        .character {
+            font-size: 100px;
+            transition: all 0.5s;
+            cursor: pointer;
+        }
+        .character:hover {
+            transform: scale(1.2) rotate(10deg);
+            animation: wobble 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes wobble {
+            0% { transform: scale(1.2) rotate(-5deg); }
+            100% { transform: scale(1.2) rotate(5deg); }
+        }
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        #fullscreenBtn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 14px;
+            padding: 10px 0;
+            color: #ffffff; /* 改为白色 */
+            text-shadow: 1px 1px 2px #000000; /* 添加黑色阴影 */
+        }
+        #tutorial {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            color: #2c3e50;
+        }
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .number-pad button {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 50%;
+            background-color: rgba(51, 51, 51, 0.7); /* 改为半透明深灰色 */
+            color: #ffffff; /* 确保数字键盘按钮文字为白色 */
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .number-pad button:hover {
+            background-color: rgba(85, 85, 85, 0.9); /* 悬停时变为稍浅的灰色 */
+            transform: scale(1.1);
+        }
+        #clear-btn {
+            background-color: rgba(85, 85, 85, 0.7); /* 清除按钮使用稍浅的灰色 */
+        }
+        #clear-btn:hover {
+            background-color: rgba(119, 119, 119, 0.9);
+        }
+        .colon-btn, #clear-btn {
+            grid-column: 6;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="starsContainer"></div>
+    <button id="fullscreenBtn" onclick="toggleFullscreen()">🔲</button>
+    <header>
+        <h1>二年级数学小博士——时间冒险</h1>
+    </header>
+    <main>
+        <div class="clock-container">
+            <div class="stars" id="stars"></div>
+            <div class="clock">
+                <div class="hand hour-hand"></div>
+                <div class="hand minute-hand"></div>
+                <div class="center-dot"></div>
+            </div>
+        </div>
+        <div class="answer-section">
+            <div class="character" id="character">🧙‍♂️</div>
+            <div class="controls">
+                <input type="text" id="answer" placeholder="几时几分? (例如: 3:15)" readonly>
+                <div class="number-pad">
+                    <button onclick="appendToAnswer('0')">0</button>
+                    <button onclick="appendToAnswer('1')">1</button>
+                    <button onclick="appendToAnswer('2')">2</button>
+                    <button onclick="appendToAnswer('3')">3</button>
+                    <button onclick="appendToAnswer('4')">4</button>
+                    <button onclick="appendToAnswer(':')" class="colon-btn">:</button>
+                    <button onclick="appendToAnswer('5')">5</button>
+                    <button onclick="appendToAnswer('6')">6</button>
+                    <button onclick="appendToAnswer('7')">7</button>
+                    <button onclick="appendToAnswer('8')">8</button>
+                    <button onclick="appendToAnswer('9')">9</button>
+                    <button id="clear-btn" onclick="clearAnswer()">C</button>
+                </div>
+                <button onclick="checkAnswer()">检查答案</button>
+                <button onclick="newTime()">下一题</button>
+            </div>
+            <div id="result"></div>
+            <div id="score-container">
+                <div id="score-bar">0 / 300</div>
+            </div>
+            <div id="encouragement"></div>
+        </div>
+    </main>
+    <footer>
+        <p>© 2024 许峵育老师 Guru Cemerlang Matematik. 版权所有。</p>
+    </footer>
+    <div id="tutorial">
+        <h2>认识钟面上的几时几分</h2>
+        <h3>钟表的指针：</h3>
+        <ul>
+            <li>时针：短短的，表示几时。</li>
+            <li>分针：长长的，表示几分。</li>
+        </ul>
+        <h3>怎样看时间：</h3>
+        <ul>
+            <li>时针指哪个数字，就是几时。</li>
+            <li>分针指到哪个数字，乘以5就是几分。</li>
+            <li>例如：指到1是5分，指到2是10分。</li>
+        </ul>
+        <h3>例子：</h3>
+        <p>如果时针在3，分针在6，就是3时30分。</p>
+        <button onclick="closeTutorial()">我明白了！</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        let currentHour, currentMinute;
+        let score = 0;
+        const characters = ['🧙‍♂️', '🦸‍♀️', '🧚', '🦁', '🐼', '🐵', '🐰', '🦊', '🐸', '🦉', '🐱', '🐶'];
+        const encouragements = ['你真棒！', '继续加油！', '太厉害了！', '你是时间大师！', '再接再厉！'];
+
+        function setTime(hour, minute) {
+            currentHour = hour;
+            currentMinute = minute;
+            const hourDeg = (hour % 12 + minute / 60) * 30;
+            const minuteDeg = minute * 6;
+            document.querySelector('.hour-hand').style.transform = `rotate(${hourDeg}deg)`;
+            document.querySelector('.minute-hand').style.transform = `rotate(${minuteDeg}deg)`;
+        }
+
+        function newTime() {
+            const hour = Math.floor(Math.random() * 12) + 1;
+            const minute = Math.floor(Math.random() * 12) * 5;
+            setTime(hour === 12 ? 0 : hour, minute);
+            document.getElementById('result').textContent = '';
+            document.getElementById('answer').value = '';
+            changeCharacter();
+            hideStars();
+            enableInput();
+        }
+
+        function checkAnswer() {
+            const answer = document.getElementById('answer').value;
+            const [inputHour, inputMinute] = answer.split(':').map(Number);
+            
+            const compareHour = inputHour === 12 ? 0 : inputHour;
+            
+            if (compareHour === currentHour && inputMinute === currentMinute) {
+                document.getElementById('result').innerHTML = '太棒了！你答对了！<br>🎉🎉🎉';
+                score += 10;
+                showStars();
+                showConfetti();
+                showEncouragement();
+                rotateClockNumbers();
+            } else {
+                const displayHour = currentHour === 0 ? 12 : currentHour;
+                document.getElementById('result').innerHTML = `哎呀，差一点点。<br>正确答案是 ${displayHour}:${currentMinute.toString().padStart(2, '0')}<br>再看看时针和分针的位置哦！`;
+                score = Math.max(0, score - 5);
+            }
+            updateScore();
+            disableInput();
+        }
+
+        function updateScore() {
+            const scoreBar = document.getElementById('score-bar');
+            const percentage = (score / 300) * 100; // 改为 300
+            scoreBar.style.width = `${percentage}%`;
+            scoreBar.textContent = `${score} / 300`; // 改为 300
+            
+            if (score >= 300) { // 改为 300
+                alert('恭喜你！你已经成为时间大师了！');
+                score = 0;
+                updateScore();
+            }
+        }
+
+        function changeCharacter() {
+            const character = characters[Math.floor(Math.random() * characters.length)];
+            document.getElementById('character').textContent = character;
+        }
+
+        function showStars() {
+            const stars = document.getElementById('stars');
+            stars.textContent = '⭐⭐⭐';
+            stars.style.opacity = '1';
+            stars.style.top = '-60px';
+            setTimeout(() => {
+                stars.style.opacity = '0';
+                stars.style.top = '-80px';
+            }, 2000);
+        }
+
+        function hideStars() {
+            const stars = document.getElementById('stars');
+            stars.style.opacity = '0';
+            stars.style.top = '-20px';
+        }
+
+        function showEncouragement() {
+            const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            document.getElementById('encouragement').textContent = encouragement;
+        }
+
+        function createClockNumbers() {
+            const clock = document.querySelector('.clock');
+            const radius = 225; // 半径略小于时钟半径
+            for (let i = 1; i <= 12; i++) {
+                const number = document.createElement('div');
+                number.className = 'number';
+                number.textContent = i;
+                const angle = (i - 3) * 30 * Math.PI / 180;
+                const x = Math.cos(angle) * radius + 250;
+                const y = Math.sin(angle) * radius + 250;
+                number.style.left = `${x - 25}px`;
+                number.style.top = `${y - 25}px`;
+                clock.appendChild(number);
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function showTutorial() {
+            document.getElementById('tutorial').style.display = 'block';
+        }
+
+        function closeTutorial() {
+            document.getElementById('tutorial').style.display = 'none';
+        }
+
+        function showConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function rotateClockNumbers() {
+            const numbers = document.querySelectorAll('.number');
+            numbers.forEach(number => {
+                number.style.animation = 'rotateNumbers 1s ease-in-out';
+            });
+            setTimeout(() => {
+                numbers.forEach(number => {
+                    number.style.animation = 'none';
+                });
+            }, 1000);
+        }
+
+        function disableInput() {
+            const buttons = document.querySelectorAll('.number-pad button');
+            buttons.forEach(button => button.disabled = true);
+            document.querySelector('button[onclick="checkAnswer()"]').disabled = true;
+            document.getElementById('answer').readOnly = true; // 添加只读属性
+        }
+
+        function enableInput() {
+            const buttons = document.querySelectorAll('.number-pad button');
+            buttons.forEach(button => button.disabled = false);
+            document.querySelector('button[onclick="checkAnswer()"]').disabled = false;
+            clearAnswer();
+            document.getElementById('answer').readOnly = false; // 移除只读属性
+        }
+
+        function appendToAnswer(value) {
+            const answer = document.getElementById('answer');
+            if (answer.value.length < 5) {
+                answer.value += value;
+            }
+        }
+
+        function clearAnswer() {
+            document.getElementById('answer').value = '';
+        }
+
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            const starCount = 100;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                container.appendChild(star);
+            }
+        }
+
+        // 在页面加载时创建星星
+        window.addEventListener('load', createStars);
+
+        // 初始化时钟
+        createClockNumbers();
+        newTime();
+        showTutorial();
+
+        // 添加键盘事件监听器
+        document.getElementById('answer').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            } else if (event.key === 'Backspace') {
+                // 允许使用退格键
+                return;
+            } else if (!/[0-9:]/.test(event.key)) {
+                // 阻止非数字和冒号的输入
+                event.preventDefault();
+            } else if (this.value.length >= 5) {
+                // 限制最大长度为5
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
